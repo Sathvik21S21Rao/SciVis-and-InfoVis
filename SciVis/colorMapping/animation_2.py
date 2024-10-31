@@ -3,8 +3,11 @@ import matplotlib.pyplot as plt
 import os
 import numpy as np
 from matplotlib.colors import ListedColormap
+import cartopy.crs as ccrs
+import cartopy.feature as cfeature
+from cartopy.mpl.ticker import LatitudeFormatter, LongitudeFormatter
 
-def load_dataset(folder):  # Load the dataset
+def load_dataset(folder):
     dataset = {}
     for i in os.listdir(folder):
         if i.endswith(".nc"):
@@ -35,8 +38,28 @@ def plot_variable_over_time(dataset, variable_name, title, cmap, ax, date_index,
     else:
         cmap = plt.get_cmap(cmap)
 
-    # Plot the data
-    img = ax.imshow(data, cmap=cmap)
+    # Create a GeoAxes instead of regular axes
+    # ax = plt.axes(projection=ccrs.PlateCarree())
+    ax.add_feature(cfeature.BORDERS, linestyle=':')
+    ax.add_feature(cfeature.COASTLINE)
+
+    # Extract latitude and longitude
+    lats = data.lat.values
+    lons = data.lon.values
+
+    # Plot the data with actual geo coordinates
+    img = ax.pcolormesh(lons, lats, data.values, transform=ccrs.PlateCarree(), 
+                        cmap=cmap, shading='auto')
+    
+    # Set up longitude and latitude gridlines with formatting
+    ax.gridlines(draw_labels=True, 
+                 linewidth=1, 
+                 color='gray', 
+                 alpha=0.5, 
+                 linestyle='--',
+                 xformatter=LongitudeFormatter(),
+                 yformatter=LatitudeFormatter())
+    
     ax.set_title(f"{title} - {date_index[frame]}")
     
     if add_color_bar:
@@ -46,17 +69,21 @@ def save_images(output_dir, dataset, date_index, num_images=10, cmap="viridis", 
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
-    # Plot and save each frame as a separate image
     for frame in range(min(num_images, len(date_index))):
-        fig, axs = plt.subplots(2, 1, figsize=(10, 10))
+        # Create figure with Cartopy projection subplots
+        fig = plt.figure(figsize=(12, 12))
+        
+        # Add subplots with PlateCarree projection
+        ax1 = fig.add_subplot(2, 1, 1, projection=ccrs.PlateCarree())
+        ax2 = fig.add_subplot(2, 1, 2, projection=ccrs.PlateCarree())
 
-        plot_variable_over_time(dataset, "burning_index_g", "Burning Index", cmap, axs[0], date_index, frame,
+        plot_variable_over_time(dataset, "burning_index_g", "Burning Index", cmap, ax1, date_index, frame,
                                 log_scale=log_scale, discrete=discrete, num_levels=num_levels, add_color_bar=True)
-        plot_variable_over_time(dataset, "fire_hazard_score", "Fire Hazard Score", cmap, axs[1], date_index, frame,
+        plot_variable_over_time(dataset, "fire_hazard_score", "Fire Hazard Score", cmap, ax2, date_index, frame,
                                 log_scale=log_scale, discrete=discrete, num_levels=num_levels, add_color_bar=True)
 
-        # Save the figure
         file_path = os.path.join(output_dir, f"frame_{frame}.png")
+        plt.tight_layout()
         plt.savefig(file_path)
         plt.close(fig)
 
@@ -71,7 +98,6 @@ if __name__ == "__main__":
         {"output_dir": "animation_log_discrete_Y1OrRed", "cmap": "YlOrRd", "log_scale": True, "discrete": True, "num_levels": 8}
     ]
 
-    # Generate images for each setting
     for plot in output:
         save_images(plot["output_dir"], dataset, date_index, num_images=10, cmap=plot["cmap"],
                     log_scale=plot.get("log_scale", False), discrete=plot.get("discrete", False),
