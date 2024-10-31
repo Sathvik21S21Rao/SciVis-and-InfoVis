@@ -52,7 +52,7 @@ if __name__ == "__main__":
     dataset = load_dataset("../sampled_data")
 
     date_index = list(dataset.keys())
-    output_dirs=["animation_1_fig_inferno"]
+    output_dirs=["bad_corr_fig_inferno"]
     for output_dir in output_dirs:
         save_images(output_dir,dataset, date_index, num_images=10,cmap=output_dir.split("_")[-1])
     

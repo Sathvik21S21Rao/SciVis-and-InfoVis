@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 import os
+import numpy as np
 
 def load_dataset(folder):
     dataset = {}
@@ -31,17 +32,19 @@ def calculate_daily_means(dataset):
     return df
 
 def plot_correlation_matrix(df):
-    # Convert date column to datetime and ordinal (for numerical correlation)
-    df['date'] = pd.to_datetime(df['date'])
-    df['date'] = df['date'].map(pd.Timestamp.toordinal)
+    df.drop(['date'], axis=1, inplace=True)
 
-    # Calculate the correlation matrix
+   
     corr_matrix = df.corr()
 
-    # Plot the correlation matrix
+    
+    mask = np.triu(np.ones_like(corr_matrix, dtype=bool))
+
+    # Plot the correlation matrix with the mask applied
     plt.figure(figsize=(15,15))
-    sns.heatmap(corr_matrix, annot=True, cmap='coolwarm', fmt=".2f", square=True, cbar_kws={"shrink": .5})
-    plt.title("Correlation Matrix of Variables")
+    sns.heatmap(corr_matrix, mask=mask, annot=True, cmap='coolwarm', fmt=".2f", 
+                square=True, cbar_kws={"shrink": .5})
+    plt.title("Lower Triangular Correlation Matrix of Variables")
     plt.tight_layout()
     plt.savefig("correlation_matrix.png")
     
