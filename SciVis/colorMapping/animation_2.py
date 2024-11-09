@@ -2,6 +2,7 @@ import xarray as xr
 import matplotlib.pyplot as plt
 import os
 import numpy as np
+import argparse
 from matplotlib.colors import ListedColormap
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
@@ -13,12 +14,24 @@ def load_dataset(folder):
         if i.endswith(".nc"):
             ds = xr.open_dataset(f"{folder}/{i}")
             add_calculated_field(ds)
-            ds = normalize_data(ds)
             dataset[i.replace(".nc", "")] = ds
     return dataset
 
-def normalize_data(ds):
+def normalize_data_local(ds):
+    """Apply local normalization to each dataset separately."""
     return (ds - ds.min()) / (ds.max() - ds.min())
+
+def normalize_data_global(dataset, variable_name):
+    """Apply global normalization to all datasets based on the global min and max values of a specific variable."""
+    # Concatenate all data along a new dimension to find the global min and max
+    concatenated_data = xr.concat([dataset[key][variable_name] for key in dataset], dim='time')
+    global_min = concatenated_data.min()
+    global_max = concatenated_data.max()
+
+    # Normalize each dataset using the global min and max
+    for key in dataset:
+        dataset[key][variable_name] = (dataset[key][variable_name] - global_min) / (global_max - global_min)
+    return dataset
 
 def add_calculated_field(ds):
     ds["fire_hazard_score"] = (ds["potential_evapotranspiration"] * 0.34 +
@@ -38,8 +51,6 @@ def plot_variable_over_time(dataset, variable_name, title, cmap, ax, date_index,
     else:
         cmap = plt.get_cmap(cmap)
 
-    # Create a GeoAxes instead of regular axes
-    # ax = plt.axes(projection=ccrs.PlateCarree())
     ax.add_feature(cfeature.BORDERS, linestyle=':')
     ax.add_feature(cfeature.COASTLINE)
 
@@ -70,10 +81,8 @@ def save_images(output_dir, dataset, date_index, num_images=10, cmap="viridis", 
         os.makedirs(output_dir)
 
     for frame in range(min(num_images, len(date_index))):
-        # Create figure with Cartopy projection subplots
         fig = plt.figure(figsize=(12, 12))
         
-        # Add subplots with PlateCarree projection
         ax1 = fig.add_subplot(2, 1, 1, projection=ccrs.PlateCarree())
         ax2 = fig.add_subplot(2, 1, 2, projection=ccrs.PlateCarree())
 
@@ -88,14 +97,30 @@ def save_images(output_dir, dataset, date_index, num_images=10, cmap="viridis", 
         plt.close(fig)
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Specify normalization type: global or local.")
+    parser.add_argument("--normalization", type=str, choices=["global", "local"], default="local",
+                        help="Normalization type: 'global' for global normalization, 'local' for local normalization.")
+    args = parser.parse_args()
+
     dataset = load_dataset("../sampled_data")
     date_index = list(dataset.keys())
 
+    if args.normalization == "global":
+        dataset = normalize_data_global(dataset, "burning_index_g")
+        dataset = normalize_data_global(dataset, "fire_hazard_score")
+    else:
+        # Apply local normalization
+        for key in dataset:
+            dataset[key] = normalize_data_local(dataset[key])
+
     output = [
-        {"output_dir": "animation_continuous_inferno", "cmap": "inferno", "log_scale": False, "discrete": False},
-        {"output_dir": "animation_log_continuous_inferno", "cmap": "inferno", "log_scale": True, "discrete": False},
-        {"output_dir": "animation_discrete_YlOrRd", "cmap": "YlOrRd", "log_scale": False, "discrete": True, "num_levels": 5},
-        {"output_dir": "animation_log_discrete_Y1OrRed", "cmap": "YlOrRd", "log_scale": True, "discrete": True, "num_levels": 8}
+        {"output_dir": "global_animation_continuous_inferno", "cmap": "inferno", "log_scale": False, "discrete": False},
+        {"output_dir": "global_animation_log_continuous_inferno", "cmap": "inferno", "log_scale": True, "discrete": False},
+        {"output_dir": "global_animation_discrete_YlOrRd", "cmap": "YlOrRd", "log_scale": False, "discrete": True, "num_levels": 5},
+        {"output_dir": "global_animation_log_discrete_Y1OrRed", "cmap": "YlOrRd", "log_scale": True, "discrete": True, "num_levels": 8},
+        {"output_dir": "global_animation_continuous_viridis", "cmap": "viridis", "log_scale": False, "discrete": False},
+        {"output_dir": "global_animation_discrete_inferno", "cmap": "inferno", "log_scale": False, "discrete": True, "num_levels": 5},
+        {"output_dir": "global_animation_diverging_coolwarm", "cmap": "coolwarm", "log_scale": False, "discrete": False},  # Diverging colormap example
     ]
 
     for plot in output:
