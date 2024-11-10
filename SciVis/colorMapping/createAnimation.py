@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
-import imageio
+
 import os
 
 def create_animation(image_folder, output_file):
