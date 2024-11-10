@@ -22,8 +22,8 @@ This directory includes contour plots without filled color maps, displaying only
 ### 3. subplots/
 This folder contains comparison images that illustrate the differences between contour fill and non-contour fill plots across various color maps. These comparisons help determine the effectiveness of filled versus unfilled contours for data interpretation.
 
-### 4. contour_map.ipynb
-The Jupyter Notebook used to generate the contour maps. It includes code for both contour fill and non-contour fill plotting methods, allowing adjustments for color maps, contour levels, and downsampling of data for visualization clarity.
+### 4. contour_map.py
+Two methods are used, one for generating contour fill maps, and another for maps without contour fill (marching squares only). Different parameters can be changed to obtain maps of varying levels, colourmaps. The different plots generated and enclosed within the folders were created in this manner by changing the parameters of these functions manually.
 
 ### 5. gifs/
 This folder contains two animated GIFs, one for contour fill and another for non-contour fill plots. Each GIF shows the progression of air temperature changes over time from July to September 2018.
@@ -41,3 +41,10 @@ From the contour plots, a consistent pattern of elevated temperatures in the sou
 2. **Run the Notebook**: Open `contour_map.ipynb` to regenerate plots or adjust visualization settings such as color maps, contour levels, or projection style.
 3. **Compare Animated Plots**: Review the GIFs in `gifs/` to analyze temporal changes in temperature over the period.
 
+## How to run the code
+```
+python -r requirements.txt
+python3 contour_map.py
+```
+
+This will create 2 folders, one with images of contour maps using contourfill, one without. The GIF is created only for contour fill method.
