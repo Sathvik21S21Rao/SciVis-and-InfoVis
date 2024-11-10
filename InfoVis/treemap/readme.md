@@ -42,4 +42,10 @@ Ensure that an active internet connection is available, as the HTML files fetch 
 
 - The `CSV` files should remain in the same directory as the HTML files to ensure the data loads correctly.
 - Images are stored in the `images` directory for reference or documentation purposes.
+
+## How to run the code
+
+The data cleaning has already been completed and stored with the right file names, both index4.html and index5.html directly access the cleaned data to create the plots. Both index4.html and index5.html have parameters that can be changed to generate different layouts of treemaps and this was done manually.
+
+double click on index4.html and index5.html to run it on the browser
   
