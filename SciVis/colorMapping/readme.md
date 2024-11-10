@@ -19,7 +19,7 @@ This script is used to generate a correlation matrix for the ```sampled_data```
 
 ### `animation_1.py`
 
-This script is responsible for generating animations using color maps and normalization techniques. It contains configurations for different types of animations and saves the generated images. This file majorly deals with the generation of plots of burning index and the correlated values in the ```![correlation_matrix.png](correlation_matrix.png)```
+This script is responsible for generating animations using color maps and normalization techniques. It contains configurations for different types of animations and saves the generated images. This file majorly deals with the generation of plots of burning index and the correlated values in the picture given below. ![correlation_matrix.png](correlation_matrix.png)
 
 ### animation_2.py
 
