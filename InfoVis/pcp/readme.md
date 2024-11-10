@@ -43,7 +43,14 @@
 
 ## Usage
 1. **PCP Folder**:
-   - run the command ```sh python -m http.server```
+   - run the command ```sh
+                     python -m http.server
+                     ```
+   - Run the command ```sh
+                     python country_cases.py > output.txt
+                     ```
+   - Copy the output and paste it as the dimensions pcp_cases.html
+   - pcp_containment.html dosen't need any such preprocessing   
    - Open the HTML files on the browser to view the plots
 
 ## Installation 
