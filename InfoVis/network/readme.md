@@ -32,6 +32,12 @@ This directory contains figures and visualizations generated from the network da
 This is a Gephi workbook file that contains the network visualization. Gephi is an open-source network analysis and visualization software. The workbook can be opened in Gephi to explore and analyze the network data visually.
 
 ## Usage
+## Requirements
+
+1. ```bash
+   pip install pandas
+   ```
+2. Gephi software
 
 ### Data Preparation
 
@@ -43,8 +49,4 @@ python data_preparation.py
 
 ### Network Visualization
 
-To visualize the network data, open the 
-
-workbook.gephi
-
- file in Gephi. This file contains the network visualization and can be used to explore and analyze the network data interactively.
+To visualize the network data, open the ```workbook.gephi``` file in Gephi. This file contains the network visualization and can be used to explore and analyze the network data interactively.
